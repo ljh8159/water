@@ -2,9 +2,19 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Flask 템플릿</title>
+    <title>Figma 스타일 웹</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>안녕하세요 {{ name }}님!</h1>
+    <div class="container">
+        <h1>환영합니다!</h1>
+        <p>이것은 Figma 스타일로 만든 Flask 웹입니다.</p>
+
+        <div class="card">
+            <h2>기능 소개</h2>
+            <p>간단한 설명과 스타일링을 담은 카드입니다.</p>
+            <button>자세히 보기</button>
+        </div>
+    </div>
 </body>
 </html>
