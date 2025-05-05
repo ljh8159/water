@@ -19,13 +19,28 @@
   <h1>카카오맵 테스트 페이지</h1>
   <div id="map"></div>
 
-  <script>
-    var mapContainer = document.getElementById('map');
-    var mapOption = {
-      center: new kakao.maps.LatLng(37.5665, 126.9780),
-      level: 3
-    };
-    var map = new kakao.maps.Map(mapContainer, mapOption);
-  </script>
-</body>
-</html>
+<script>
+  var mapContainer = document.getElementById('map');
+  var mapOption = {
+    center: new kakao.maps.LatLng(37.5665, 126.9780),
+    level: 3
+  };
+  var map = new kakao.maps.Map(mapContainer, mapOption);
+
+  // ✅ 기본 마커 생성
+  var marker = new kakao.maps.Marker({
+    position: map.getCenter(),
+    map: map
+  });
+
+  // ✅ 클릭하면 마커 이동 + 좌표 출력
+  kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+    var latlng = mouseEvent.latLng;
+
+    // 마커 위치 이동
+    marker.setPosition(latlng);
+
+    // 좌표 출력
+    alert('📍 클릭한 위치\n위도: ' + latlng.getLat() + '\n경도: ' + latlng.getLng());
+  });
+</script>
