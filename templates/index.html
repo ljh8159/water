@@ -4,10 +4,9 @@
   <meta charset="utf-8">
   <title>카카오 지도 삭제 기능 포함</title>
 
-  <!-- ✅ 외부 CSS 연결 (Flask 템플릿용) -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-  <!-- ✅ Kakao Maps SDK (자동 로딩 해제) -->
+  <!-- ✅ autoload=false 설정 -->
   <script src="https://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=f24f75617efd67a1234552d873c8373e&libraries=services"></script>
 </head>
 <body>
@@ -15,7 +14,6 @@
   <div id="map"></div>
   <div id="coords">🧭 클릭한 위치의 좌표와 주소가 여기에 표시됩니다.</div>
 
-  <!-- ✅ 지도 로직: SDK 로딩 완료 후 실행 -->
   <script>
     window.onload = function () {
       kakao.maps.load(function () {
@@ -28,41 +26,32 @@
         const map = new kakao.maps.Map(mapContainer, mapOption);
         const geocoder = new kakao.maps.services.Geocoder();
 
-        // ✅ 저장된 좌표들 불러와 마커 표시
+        // 저장된 좌표 마커
         fetch('/get_coords')
           .then(res => res.json())
           .then(data => {
             data.forEach(item => {
               const pos = new kakao.maps.LatLng(item.lat, item.lng);
-              const savedMarker = new kakao.maps.Marker({
-                position: pos,
-                map: map
-              });
+              const marker = new kakao.maps.Marker({ position: pos, map: map });
+              const infowindow = new kakao.maps.InfoWindow({ content: `<div>${item.address}</div>` });
 
-              const infowindow = new kakao.maps.InfoWindow({
-                content: `<div style="font-size:13px; padding:5px;">${item.address || '주소 없음'}</div>`
-              });
-
-              kakao.maps.event.addListener(savedMarker, 'click', () => {
+              kakao.maps.event.addListener(marker, 'click', () => {
                 if (confirm("이 마커를 삭제하시겠습니까?")) {
                   fetch('/delete_coords', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ lat: item.lat, lng: item.lng })
-                  }).then(() => {
-                    savedMarker.setMap(null);
-                  });
+                  }).then(() => marker.setMap(null));
                 } else {
-                  infowindow.open(map, savedMarker);
+                  infowindow.open(map, marker);
                 }
               });
             });
           });
 
-        // ✅ 클릭한 좌표 저장
+        // 클릭 시 마커 저장
         kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
           const latlng = mouseEvent.latLng;
-
           if (!confirm("이 위치를 저장하시겠습니까?")) return;
 
           geocoder.coord2Address(latlng.getLng(), latlng.getLat(), function(result, status) {
@@ -70,7 +59,7 @@
               const address = result[0].address.address_name;
 
               document.getElementById('coords').innerHTML =
-                `📌 위도: ${latlng.getLat().toFixed(6)}, 경도: ${latlng.getLng().toFixed(6)}<br>🏠 주소: ${address}`;
+                `📌 위도: ${latlng.getLat()}, 경도: ${latlng.getLng()}<br>🏠 주소: ${address}`;
 
               fetch('/save_coords', {
                 method: 'POST',
@@ -81,29 +70,18 @@
                   address: address
                 })
               }).then(() => {
-                const newMarker = new kakao.maps.Marker({
-                  position: latlng,
-                  map: map
-                });
+                const marker = new kakao.maps.Marker({ position: latlng, map: map });
+                const infowindow = new kakao.maps.InfoWindow({ content: `<div>${address}</div>` });
 
-                const infowindow = new kakao.maps.InfoWindow({
-                  content: `<div style="font-size:13px; padding:5px;">${address}</div>`
-                });
-
-                kakao.maps.event.addListener(newMarker, 'click', () => {
+                kakao.maps.event.addListener(marker, 'click', () => {
                   if (confirm("이 마커를 삭제하시겠습니까?")) {
                     fetch('/delete_coords', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        lat: latlng.getLat(),
-                        lng: latlng.getLng()
-                      })
-                    }).then(() => {
-                      newMarker.setMap(null);
-                    });
+                      body: JSON.stringify({ lat: latlng.getLat(), lng: latlng.getLng() })
+                    }).then(() => marker.setMap(null));
                   } else {
-                    infowindow.open(map, newMarker);
+                    infowindow.open(map, marker);
                   }
                 });
               });
