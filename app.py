@@ -52,3 +52,13 @@ def delete_coords():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+
+from flask import send_file
+
+@app.route('/download_db', methods=['GET'])
+def download_db():
+    db_path = "coords.db"
+    if os.path.exists(db_path):
+        return send_file(db_path, as_attachment=True)
+    else:
+        return "DB 파일이 존재하지 않습니다.", 404
