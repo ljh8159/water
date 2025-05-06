@@ -7,8 +7,8 @@
   <!-- ✅ 외부 CSS 적용 -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-  <!-- ✅ 카카오 지도 SDK (https로 명확하게 지정) -->
-  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=f24f75617efd67a1234552d873c8373e&libraries=services"></script>
+  <!-- ✅ 카카오 지도 SDK (defer 추가로 차단 방지) -->
+  <script defer src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=f24f75617efd67a1234552d873c8373e&libraries=services"></script>
 </head>
 <body>
   <h2>📍 카카오 지도</h2>
