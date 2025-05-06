@@ -62,3 +62,17 @@ def download_db():
         return send_file(db_path, as_attachment=True)
     else:
         return "DB 파일이 존재하지 않습니다.", 404
+
+@app.route('/admin/coords')
+def admin_coords():
+    conn = sqlite3.connect("coords.db")
+    c = conn.cursor()
+    c.execute("SELECT * FROM coordinates")
+    rows = c.fetchall()
+    conn.close()
+    
+    result = [
+        {'id': r[0], 'lat': r[1], 'lng': r[2], 'address': r[3]}
+        for r in rows
+    ]
+    return jsonify(result)
